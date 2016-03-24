@@ -1,5 +1,5 @@
-# information Decomposition
-An C++ implementation of an information decomposition algorithm on structured space.
+# Information Decomposition
+An implementation of information decomposition algorithms on structured space.
 Please see the following paper for more details:
 * Sugiyama, M., Nakahara, H., Tsuda, K.: **Information Decomposition on Structured Space**, *[arXiv:1601.05533](http://arxiv.org/abs/1601.05533)*, 2016
 
