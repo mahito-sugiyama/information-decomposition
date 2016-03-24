@@ -13,7 +13,7 @@ Please modify the "Makefile" according to your environment.
 The following is an example in the terminal (in the directory "src"):
 ```
 $ make
-$ ./decomp -i ../data/T10I4D100K.data -s 0.0001
+$ ./decomp -i ../data/T10I4D100K.data -o output -s 0.0001
 > Reading a database file "../data/T10I4D100K.data" ... end
   Information:
   Number of transactions: 100000
@@ -62,7 +62,7 @@ $ ./decomp -i ../data/T10I4D100K.data -s 0.0001
 
 #### Command-line arguments
 
-  `-i <input_file>` : An input file of transaction database  
+  `-i <input_file>` : An input file of a transaction database  
   `-o <output_file>` : An output file of the full list of significant combinations of features  
   `-s <prob_threshold>` : A threshold for probability of combinations that are included in the resulting poset    
   `-l <lower_bound>` : The lower bound of the size of combinations (default: 1)  
