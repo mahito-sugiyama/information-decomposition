@@ -23,7 +23,7 @@ ISIR, Osaka University,
 E-mail: mahito@ar.sanken.osaka-u.ac.jp
 */
 
-#include "mixed.h"
+#include "mix.h"
 #include "dataprocess.h"
 #include <time.h>
 #include <unistd.h>
