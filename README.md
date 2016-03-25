@@ -21,7 +21,7 @@ $ ./decomp -i ../data/T10I4D100K.data -o output -s 0.0001
   Information:
   Number of transactions: 100000
   Number of items:        870
-> Computing the support
+> Computing probabilities
   [====================================================================================================] 100 %
   Information:
   Number of frequent combinations: 364
@@ -33,10 +33,10 @@ $ ./decomp -i ../data/T10I4D100K.data -o output -s 0.0001
 > Initializing poset ... end
 > Conputing feature scores (KL divergence)
   [===================================================================================================>] 100 %
-  Runtime for computing scores: 0.0496
+  Runtime for computing scores: 0.040327
 > Conputing p-values ... end
   Information:
-  Number of significant patterns: 359
+  Number of significant combinations: 359
   size 2: 1
   size 3: 20
   size 4: 58
@@ -49,7 +49,7 @@ $ ./decomp -i ../data/T10I4D100K.data -o output -s 0.0001
   size 11: 1
   size 13: 1
 > Writing all significant combinations to "output" ... end
-> Top-10 combinations (KL & Bonferroni-corrected p-value):
+> Top-10 combinations (with KL & Bonferroni-corrected p-value):
   351 477 766 820, 0.640463, 0
   275 305 368 471, 0.640463, 0
   72 234 343 427 528 897, 0.640463, 0
@@ -60,7 +60,7 @@ $ ./decomp -i ../data/T10I4D100K.data -o output -s 0.0001
   120 181 333 798 998, 0.640463, 0
   73 334 474 638 989, 0.640463, 0
   95 159 517 722 966, 0.640463, 0
-> Total runtime: 0.490335
+> Total runtime: 0.419604
 ```
 
 #### Command-line arguments
