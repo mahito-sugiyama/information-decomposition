@@ -1,13 +1,16 @@
 # Information Decomposition
-An implementation of information decomposition algorithms on structured space.
+An implementation of information decomposition algorithms on structured space.  
 Please see the following paper for more details:
-* Sugiyama, M., Nakahara, H., Tsuda, K.: **Information Decomposition on Structured Space**, *[arXiv:1601.05533](http://arxiv.org/abs/1601.05533)*, 2016
+* Sugiyama, M., Nakahara, H., Tsuda, K.: **Information Decomposition on Structured Space**, *[arXiv:1601.05533](http://arxiv.org/abs/1601.05533)* (2016)
 
 ## Usage
-The file "mix.h" contains the source code of mixing two distributions on a poset for the KL divergence decomposition.
-We provide data processing functions in the file "dataprocess.h" that construct a poset from a transaction database and compute the score (KL divergence) and the *p*-value for each combination of features (attributes).
+The file "mix.h" contains the source code of mixing two distributions on a poset that achieves the KL divergence decomposition.
+Please check "example.cc", where you can see how to use the functions in "mix.h".
 
-To compile the code, the Boost library is needed, which is used to compute the *p*-values from the *&chi;*<sup>2</sup> distribution.
+We also provide data processing functions in "dataprocess.h" that construct a poset from a transaction database and compute the score (KL divergence) and the *p*-value for each combination of features (attributes).
+
+The code is written in C++11.
+To compile the code including "dataprocess.h", the Boost library is needed, which is used to compute the *p*-values from the *&chi;*<sup>2</sup> distribution.
 Please modify the "Makefile" according to your environment.
 
 The following is an example in the terminal (in the directory "src"):
