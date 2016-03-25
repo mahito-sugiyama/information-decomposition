@@ -195,26 +195,6 @@ int32_t computePoset(vector<node>& s, vector<vector<int32_t>>& data) {
   return num_edges;
 }
 
-// compute a null distribution by copying "s"
-void copyToNull(vector<node>& s, vector<node>& s_null) {
-  s_null.resize(s.size());
-  auto iter1 = s.begin();
-  auto iter2 = s_null.begin();
-  for(; iter1 != s.end() && iter2 != s_null.end(); ++iter1, ++iter2) {
-    iter2->id_org = iter1->id_org;
-    iter2->id = iter1->id;
-    iter2->p = 1.0 / (double)s.size();
-    for (auto&& p : iter1->from)
-      (iter2->from).push_back(ref(s_null[p.get().id]));
-    for (auto&& p : iter1->to)
-      (iter2->to).push_back(ref(s_null[p.get().id]));
-  }
-  for (auto&& x : s_null) x.theta = 0;
-  s_null[0].theta = log(s_null[0].p);
-  computeEtaAll(s_null);
-  initializePoset(s_null);
-}
-
 // compute the KL divergence for each node
 void computeFeatureScore(vector<node>& s, double eps) {
   for (auto&& x : s) {

@@ -130,28 +130,6 @@ int main(int argc, char *argv[]) {
     cout << "  Distribution:" << endl << s;
   }
 
-  vector<node> s_null;
-  copyToNull(s, s_null);
-  if (verbose) {
-    cout << "  Null distribution:" << endl << s_null;
-  }
-
-  vector<reference_wrapper<node>> s_nodes = {ref(s[2]), ref(s[3]), ref(s[7])};
-  cout << endl << "Computing the mixed distribution for [ ";
-  for (auto&& ptr : s_nodes)
-    cout << ptr.get().id << " ";
-  cout << "] ... ";
-  // compute the mixed distribution
-  computeMixed(s_nodes, s, s_null, eps);
-  cout << "end" << endl << endl;
-
-  if (verbose) {
-    cout << "Mixed distribution:" << endl << s;
-  }
-
-  cout << flush;
-  exit(1);
-
   // compute feature scores (KL divergence)
   cout << "> Conputing feature scores (KL divergence)" << endl << flush;
   clock_t time_score_start = clock();
