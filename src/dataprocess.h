@@ -209,6 +209,10 @@ void copyToNull(vector<node>& s, vector<node>& s_null) {
     for (auto&& p : iter1->to)
       (iter2->to).push_back(ref(s_null[p.get().id]));
   }
+  for (auto&& x : s_null) x.theta = 0;
+  s_null[0].theta = log(s_null[0].p);
+  computeEtaAll(s_null);
+  initializePoset(s_null);
 }
 
 // compute the KL divergence for each node

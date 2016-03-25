@@ -58,7 +58,7 @@ ostream &operator<<(ostream& out, const vector<node>& s) {
   int32_t width = 8;
   out << setw(4) << right << "id" << setw(width) << right << "prob" << setw(width) << right << "theta" << setw(width) << right << "eta" << endl;
   for (auto&& x : s) {
-    out << setw(4) << right << setprecision(4) << fixed << x.id_org << setw(width) << right << x.p << setw(width) << right << x.theta << setw(width) << right << x.eta << endl;
+    out << setw(4) << right << setprecision(4) << fixed << x.id << setw(width) << right << x.p << setw(width) << right << x.theta << setw(width) << right << x.eta << endl;
   }
   return out;
 }
@@ -119,6 +119,69 @@ void getLower(node& x_target, vector<node>& s) {
     getLowerNext(ptr.get());
 }
 
+void revertCheckTo(node& x) {
+  if (x.check == -1)
+    return;
+  x.check = -1;
+  for (auto&& ptr : x.to)
+    revertCheckTo(ptr.get());
+}
+void revertCheckFrom(node& x) {
+  if (x.check == -1)
+    return;
+  x.check = -1;
+  for (auto&& ptr : x.from)
+    revertCheckFrom(ptr.get());
+}
+// compute theta for all elements in "s"
+double aggregateTheta(node& x, node& y) {
+  if (y.check == x.id)
+    return 0.0;
+  y.check = x.id;
+
+  double theta_sum = y.theta;
+  for (auto&& ptr : y.from)
+    theta_sum += aggregateTheta(x, ptr.get());
+  return theta_sum;
+}
+void computeTheta(node& x) {
+  x.theta = log(x.p);
+  x.check = x.id;
+  for (auto&& ptr : x.from)
+    x.theta -= aggregateTheta(x, ptr.get());
+}
+void computeThetaAll(vector<node>& s) {
+  for (auto&& x : s)
+    x.check = -1;
+  for (auto&& x : s)
+    computeTheta(x);
+}
+
+// compute eta for all elements in "s"
+double aggregateEta(node& x, node& y) {
+  if (y.check == x.id)
+    return 0.0;
+  y.check = x.id;
+
+  double eta_sum = y.p;
+  for (auto&& ptr : y.to)
+    eta_sum += aggregateEta(x, ptr.get());
+  return eta_sum;
+}
+void computeEta(node& x) {
+  x.eta = x.p;
+  x.check = x.id;
+  for (auto&& ptr : x.to)
+    x.eta += aggregateEta(x, ptr.get());
+}
+void computeEtaAll(vector<node>& s) {
+  for (auto&& x : s)
+    x.check = -1;
+  for (auto&& x : reverse(s))
+    computeEta(x);
+}
+
+// poset manipulations
 void initializePoset(vector<node>& s) {
   for (auto&& x : s) {
     x.check = -1;
@@ -145,51 +208,22 @@ void revertPoset(vector<node>& s) {
     x.eta_prev = x.eta_init;
   }
 }
-
-// compute theta for all elements in "s"
-double aggregateTheta(node& x, node& y) {
-  if (y.check == x.id)
-    return 0.0;
-  y.check = x.id;
-
-  double theta_sum = y.theta;
-  for (auto&& ptr : y.from)
-    theta_sum += aggregateTheta(x, ptr.get());
-  return theta_sum;
-}
-void computeTheta(node& x) {
-  x.theta = log(x.p);
-  for (auto&& ptr : x.from)
-    x.theta -= aggregateTheta(x, ptr.get());
-}
-void computeThetaAll(vector<node>& s) {
-  for (auto&& x : s)
-    x.check = -1;
-  for (auto&& x : s)
-    computeTheta(x);
-}
-
-// compute eta for all elements in "s"
-double aggregateEta(node& x, node& y) {
-  if (y.check == x.id)
-    return 0.0;
-  y.check = x.id;
-
-  double eta_sum = y.p;
-  for (auto&& ptr : y.to)
-    eta_sum += aggregateEta(x, ptr.get());
-  return eta_sum;
-}
-void computeEta(node& x) {
-  x.eta = x.p;
-  for (auto&& ptr : x.to)
-    x.eta += aggregateEta(x, ptr.get());
-}
-void computeEtaAll(vector<node>& s) {
-  for (auto&& x : s)
-    x.check = -1;
-  for (auto&& x : reverse(s))
-    computeEta(x);
+void copyPoset(vector<node>& s, vector<node>& t, vector<double> q) {
+  t.resize(s.size());
+  auto iter1 = s.begin();
+  auto iter2 = t.begin();
+  for(; iter1 != s.end() && iter2 != t.end(); ++iter1, ++iter2) {
+    iter2->id = iter1->id;
+    for (auto&& p : iter1->from)
+      (iter2->from).push_back(ref(t[p.get().id]));
+    for (auto&& p : iter1->to)
+      (iter2->to).push_back(ref(t[p.get().id]));
+  }
+  for (int32_t i = 0; i < (int32_t)t.size(); i++)
+    t[i].p = q[i];
+  computeThetaAll(t);
+  computeEtaAll(t);
+  initializePoset(t);
 }
 
 // compute the mixed distribution of "s" and "t"
@@ -249,6 +283,8 @@ bool computeThetaSingle(node& x_target, vector<reference_wrapper<node>>& x_targe
   return positive;
 }
 double computeMixedSingle(node& x_target, double t_theta, double eps, bool revert) {
+  if (fabs(x_target.theta - t_theta) < eps) return 0;
+
   // get the lower set by breadth first search
   vector<reference_wrapper<node>> x_target_lower;
   vector<reference_wrapper<node>> queue;
@@ -315,6 +351,7 @@ double computeMixedSingle(node& x_target, double t_theta, double eps, bool rever
   for (auto&& ptr : x_target_lower)
     kl += ptr.get().p_init * log(ptr.get().p_init / ptr.get().p);
 
+
   // clean up
   for (auto&& ptr : x_target_lower) {
     ptr.get().p_prev = ptr.get().p;
@@ -339,18 +376,17 @@ double computeMixedSingle(node& x_target, double t_theta, double eps, bool rever
 
   return kl;
 }
-void computeMixed(vector<reference_wrapper<node>>& s_s, vector<node>& s, vector<node>& t, double eps) {
-  double error_prev = 10.0, error = 1.0;
-  while (fabs(error - error_prev) > eps) {
-    error_prev = error;
-    error = 0;
-    for (auto&& ptr : s_s)
+void computeMixed(vector<reference_wrapper<node>>& s_nodes, vector<node>& s, vector<node>& t, double eps) {
+  double theta_prev, theta = s[0].theta;
+  do {
+    theta_prev = theta;
+    for (auto&& ptr : s_nodes) {
+      computeTheta(ptr.get());
+      revertCheckFrom(ptr.get());
       computeMixedSingle(ptr.get(), t[ptr.get().id].theta, eps, false);
-      // computeMixedSingle(ptr.get(), t, eps, false);
-    // t[x_target.id].theta
-    for (auto&& ptr : s_s)
-      error += fabs(ptr.get().theta - t[ptr.get().id].theta);
-  }
+    }
+    theta = s[0].theta;
+  } while (fabs(theta - theta_prev) > eps);
+
   computeEtaAll(s);
-  revertPoset(s);
 }
