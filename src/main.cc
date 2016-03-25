@@ -80,7 +80,7 @@ int main(int argc, char *argv[]) {
 
   // check duplication and compute the support for each transaction
   // keep transactions whose support is larger than sigma
-  cout << "> Computing the support" << endl << flush;
+  cout << "> Computing probabilities" << endl << flush;
   vector<node> s;
   computeSupport(data, sigma, s);
   cout << "  Information:" << endl << flush;
@@ -146,7 +146,7 @@ int main(int argc, char *argv[]) {
   vector<int32_t> sig_num;
   computeEachSignum(s, data, alpha, sig_num);
   cout << "  Information:" << endl << flush;
-  cout << "  Number of significant patterns: " << accumulate(sig_num.begin(), sig_num.end(), 0) << endl;
+  cout << "  Number of significant combinations: " << accumulate(sig_num.begin(), sig_num.end(), 0) << endl;
   for (int32_t i = 1; i < (int32_t)sig_num.size(); i++) {
     if (sig_num[i] > 0) cout << "  size " << i << ": " << sig_num[i] << endl;
   }
@@ -161,7 +161,7 @@ int main(int argc, char *argv[]) {
   }
 
   // output top-k combinations
-  cout << "> Top-" << topk << " combinations (KL & Bonferroni-corrected p-value):" << endl;
+  cout << "> Top-" << topk << " combinations (with KL & Bonferroni-corrected p-value):" << endl;
   outputSig(s, data, alpha, item_length_lb, topk, 2, cout);
 
   clock_t time_total_end = clock();
